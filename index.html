@@ -41,6 +41,8 @@ body{margin:0;background:var(--bg);color:var(--ink);
   line-height:1.65;-webkit-text-size-adjust:100%}
 .wrap{max-width:1040px;margin:0 auto;padding:20px 16px 56px}
 h1{font-size:clamp(26px,5vw,38px);font-weight:900;margin:8px 0 4px;letter-spacing:.02em}
+.unofficial{background:var(--accent);color:var(--accent-ink);border-radius:10px;padding:14px 16px;margin:4px 0 14px;font-size:15px;line-height:1.6}
+.unofficial strong{display:block;font-size:clamp(18px,4vw,22px);font-weight:900;margin-bottom:2px}
 .place{margin:0 0 4px;font-weight:700;color:var(--sub)}
 .lead{color:var(--sub);margin:0 0 18px;max-width:38em}
 .demo{background:var(--unk-bg);color:var(--unk);border-left:5px solid var(--unk);
@@ -101,6 +103,11 @@ details summary{cursor:pointer;font-weight:700;min-height:32px}
 </head>
 <body>
 <div class="wrap">
+  <div class="unofficial" role="note">
+    <strong>これは非公式サイトです</strong>
+    東京都市大学や食堂の運営とは関係なく、個人が食堂の掲示を見てまとめたものです。内容の正確さは保証できません。アレルギーのある方は、食べる前に必ず食堂の表示やスタッフで確認してください。
+  </div>
+
   <h1>学食アレルギー表</h1>
   <p class="place" id="campus"></p>
   <p class="lead">現地で確認した内容を一覧にしたものです。避けたい食材を選ぶと、それを含むメニューが消えます。</p>
@@ -233,8 +240,8 @@ function render(){
   });
   const warnOf = r => S.filter(a=>r.a[a]==="u");
   $("count").textContent = list.length+" 件のメニュー"+(S.length?`（${S.join("・")}を含むものを除外中）`:"");
-  const head = `<thead><tr><th class="l name">メニュー</th>${multi?"<th>場所</th>":""}<th>価格</th><th>kcal</th><th>タンパク質</th><th>脂質</th><th>塩分</th>`+
-    ALLERGENS.map(a=>`<th>${a}</th>`).join("")+`<th class="l">確認</th></tr></thead>`;
+  const head = `<thead><tr><th class="l name">メニュー</th>${multi?"<th>場所</th>":""}`+
+    ALLERGENS.map(a=>`<th>${a}</th>`).join("")+`<th>価格</th><th>kcal</th><th>タンパク質</th><th>脂質</th><th>塩分</th><th class="l">確認</th></tr></thead>`;
   const cols = ALLERGENS.length+6+(multi?1:0);
   if(!list.length){ $("tbl").innerHTML=head+`<tbody><tr><td colspan="${cols}" class="empty">条件に合うメニューがありません。条件をゆるめてみてください。</td></tr></tbody>`; return; }
   const sym={y:"含",n:"–",u:"?"}, ttl={y:"含む",n:"含まない",u:"未確認"};
@@ -244,8 +251,8 @@ function render(){
     const conf=[r.date||"確認日不明", r.how?"（"+esc(r.how)+"）":""].join("");
     return `<tr class="${w.length?"warn":""}"><td class="l name">${esc(r.name)}${w.length?`<span class="tag">${w.join("・")}が未確認</span>`:""}</td>`+
       (multi?`<td>${esc(r.place)}</td>`:"")+
-      `<td>${isNaN(r.price)?"–":r.price+"円"}</td><td>${num(r.kcal,"")}</td><td>${num(r.pro,"g")}</td><td>${num(r.fat,"g")}</td><td>${num(r.salt,"g")}</td>`+
       ALLERGENS.map(a=>`<td><span class="cell ${r.a[a]}${S.includes(a)?" hit":""}" title="${a}: ${ttl[r.a[a]]}" aria-label="${a} ${ttl[r.a[a]]}">${sym[r.a[a]]}</span></td>`).join("")+
+      `<td>${isNaN(r.price)?"–":r.price+"円"}</td><td>${num(r.kcal,"")}</td><td>${num(r.pro,"g")}</td><td>${num(r.fat,"g")}</td><td>${num(r.salt,"g")}</td>`+
       `<td class="meta">${conf}${r.note?"<br>"+esc(r.note):""}</td></tr>`;
   }).join("")+"</tbody>";
 }
