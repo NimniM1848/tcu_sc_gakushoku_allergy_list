@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>学食アレルギー表</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#ECF1EF; --panel:#FFFFFF; --ink:#16313A; --sub:#58707A; --line:#CBD8D4;
+  --yes:#B3261E; --yes-bg:#FBE4E1;
+  --no:#1F7A4D; --no-bg:#E1F2E8;
+  --unk:#9A6700; --unk-bg:#FFF1CC;
+  --accent:#16313A; --accent-ink:#FFFFFF;
+}
+:root:not([data-theme="light"]){}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1D22; --panel:#17292F; --ink:#E4EEEB; --sub:#9DB3AD; --line:#2C444B;
+    --yes:#FF8A80; --yes-bg:#4A2220;
+    --no:#7FD3A3; --no-bg:#163A29;
+    --unk:#F2C15A; --unk-bg:#43350F;
+    --accent:#E4EEEB; --accent-ink:#0F1D22;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1D22; --panel:#17292F; --ink:#E4EEEB; --sub:#9DB3AD; --line:#2C444B;
+  --yes:#FF8A80; --yes-bg:#4A2220;
+  --no:#7FD3A3; --no-bg:#163A29;
+  --unk:#F2C15A; --unk-bg:#43350F;
+  --accent:#E4EEEB; --accent-ink:#0F1D22;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+  line-height:1.65;-webkit-text-size-adjust:100%}
+.wrap{max-width:1040px;margin:0 auto;padding:20px 16px 56px}
+h1{font-size:clamp(26px,5vw,38px);font-weight:900;margin:8px 0 4px;letter-spacing:.02em}
+.place{margin:0 0 4px;font-weight:700;color:var(--sub)}
+.lead{color:var(--sub);margin:0 0 18px;max-width:38em}
+.demo{background:var(--unk-bg);color:var(--unk);border-left:5px solid var(--unk);
+  padding:10px 14px;border-radius:4px;font-weight:700;margin-bottom:16px;font-size:14px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:14px}
+.panel h2{font-size:16px;margin:0 0 4px}
+.hint{font-size:13px;color:var(--sub);margin:0 0 10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{position:relative}
+.chip input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+.chip span{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:2px solid var(--line);
+  border-radius:999px;font-weight:700;font-size:15px;background:var(--panel);min-height:44px}
+.chip input:checked + span{background:var(--yes);border-color:var(--yes);color:#fff}
+.chip input:checked + span::before{content:"✕";font-size:12px}
+.chip input:focus-visible + span{outline:3px solid var(--ink);outline-offset:2px}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:end;margin-top:14px}
+label.f{display:flex;flex-direction:column;font-size:12px;color:var(--sub);gap:4px;font-weight:700}
+select,input[type=search],textarea{font:inherit;font-size:15px;color:var(--ink);background:var(--bg);
+  border:1px solid var(--line);border-radius:8px;padding:9px 10px;min-height:44px}
+textarea{width:100%;min-height:120px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px}
+select:focus-visible,input:focus-visible,textarea:focus-visible,button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.check{display:flex;gap:8px;align-items:center;font-size:14px;min-height:44px;font-weight:500}
+.check input{width:20px;height:20px}
+button{font:inherit;font-weight:700;font-size:14px;border:0;border-radius:8px;padding:10px 16px;min-height:44px;
+  background:var(--accent);color:var(--accent-ink);cursor:pointer}
+button.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.count{font-weight:700;margin:16px 2px 8px}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+table{border-collapse:separate;border-spacing:0;width:100%;min-width:1000px;font-size:14px}
+th,td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:center;vertical-align:middle}
+th{font-size:12px;color:var(--sub);background:var(--panel);position:sticky;top:0;white-space:nowrap}
+th.l,td.l{text-align:left}
+td.name{font-weight:700;min-width:11em;position:sticky;left:0;background:var(--panel);z-index:1}
+th.name{position:sticky;left:0;z-index:2}
+tr:last-child td{border-bottom:0}
+tr.warn td.name{box-shadow:inset 5px 0 0 var(--unk)}
+.cell{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:6px;font-weight:900;font-size:14px}
+.cell.y{background:var(--yes-bg);color:var(--yes)}
+.cell.n{background:var(--no-bg);color:var(--no)}
+.cell.u{color:var(--unk);background:repeating-linear-gradient(45deg,var(--unk-bg),var(--unk-bg) 4px,transparent 4px,transparent 8px);
+  border:1px dashed var(--unk)}
+.cell.hit{outline:3px solid var(--ink);outline-offset:1px}
+.meta{font-size:12px;color:var(--sub);text-align:left;min-width:11em}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:4px;background:var(--unk-bg);color:var(--unk);margin-left:6px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;margin:12px 2px;align-items:center}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+.legend .cell{width:22px;height:22px;font-size:12px}
+.contact{margin-top:22px;padding:14px 16px;border:1px solid var(--line);border-radius:10px;background:var(--panel);font-size:14px}
+.contact b{display:block;margin-bottom:2px}
+.contact a{color:var(--ink);font-weight:700;text-underline-offset:3px}
+.disc{font-size:13px;color:var(--sub);margin-top:22px;border-top:1px solid var(--line);padding-top:14px}
+.empty{padding:28px;text-align:center;color:var(--sub)}
+details summary{cursor:pointer;font-weight:700;min-height:32px}
+.msg{font-size:13px;margin-top:8px;color:var(--no);font-weight:700}
+.err{color:var(--yes)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>学食アレルギー表</h1>
+  <p class="place" id="campus"></p>
+  <p class="lead">現地で確認した内容を一覧にしたものです。避けたい食材を選ぶと、それを含むメニューが消えます。</p>
+
+  <section class="panel" aria-labelledby="h-a">
+    <h2 id="h-a">避けたい食材</h2>
+    <p class="hint">選んだ食材を「含む」メニューを非表示にします。</p>
+    <div class="chips" id="chips"></div>
+    <div class="row">
+      <label class="check"><input type="checkbox" id="hideUnk"> 「未確認」がある料理も非表示にする</label>
+    </div>
+    <div class="row">
+      <label class="f" id="placeWrap">提供場所<select id="place"></select></label>
+      <label class="f">並べ替え<select id="sortKey">
+        <option value="std">標準（麺類が先）</option>
+        <option value="name">メニュー名</option>
+        <option value="price">価格</option>
+        <option value="kcal">カロリー</option>
+        <option value="pro">タンパク質</option>
+        <option value="fat">脂質</option>
+        <option value="salt">塩分</option>
+        <option value="date">確認日</option>
+      </select></label>
+      <label class="f">順序<select id="sortDir"><option value="1">小さい順</option><option value="-1">大きい順</option></select></label>
+      <label class="f">メニュー名で検索<input type="search" id="q" placeholder="例: カレー"></label>
+      <button class="ghost" id="reset" type="button">条件をリセット</button>
+    </div>
+  </section>
+
+  <div class="legend" aria-label="凡例">
+    <span><i class="cell y">含</i>含む</span>
+    <span><i class="cell n">–</i>含まない（確認済み）</span>
+    <span><i class="cell u">?</i>未確認</span>
+  </div>
+  <div class="count" id="count" aria-live="polite"></div>
+  <div class="tablewrap"><table id="tbl"></table></div>
+
+
+  <div class="contact">
+    <b>間違いや古い情報を見つけたら</b>
+    表示が実際の掲示と違う、メニューが入れ替わっていた、などに気づいたら、X（<a href="https://x.com/Laniakea_bloom" target="_blank" rel="noopener noreferrer">@Laniakea_bloom</a>）まで教えてください。
+  </div>
+
+  <p class="disc">
+    ※ メニューや原材料は変わることがあります。このページの情報は有志が現地で確認したもので、正確さや最新性を保証しません。
+    アレルギーのある方は、食べる前に必ず食堂のスタッフや現地の表示で確認してください。
+  </p>
+</div>
+
+<script>
+const ALLERGENS = ["小麦", "卵", "乳製品", "そば", "落花生", "くるみ", "かに", "えび"];
+
+let ROWS = [];
+const $ = id => document.getElementById(id);
+
+function parseCSV(text){
+  const out=[]; let row=[], cur="", q=false;
+  text = text.replace(/^\uFEFF/,"");
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(q){
+      if(c==='"'){ if(text[i+1]==='"'){cur+='"';i++;} else q=false; }
+      else cur+=c;
+    } else if(c==='"') q=true;
+    else if(c===','){ row.push(cur); cur=""; }
+    else if(c==='\n'||c==='\r'){
+      if(c==='\r'&&text[i+1]==='\n') i++;
+      row.push(cur); cur=""; if(row.some(x=>x.trim()!=="")) out.push(row); row=[];
+    } else cur+=c;
+  }
+  row.push(cur); if(row.some(x=>x.trim()!=="")) out.push(row);
+  return out;
+}
+function norm(v){
+  v=(v||"").trim();
+  if(v==="含む"||v==="○"||v==="あり") return "y";
+  if(v==="含まない"||v==="×"||v==="なし") return "n";
+  return "u";
+}
+function load(text){
+  const t = parseCSV(text);
+  if(t.length<2) throw new Error("データ行がありません");
+  const h = t[0].map(s=>s.trim());
+  if(!h.includes("メニュー名")) throw new Error("1行目に「メニュー名」列が必要です");
+  const idx = k => h.indexOf(k);
+  const rows = t.slice(1).map(r=>{
+    const g = k => idx(k)>=0 ? (r[idx(k)]||"").trim() : "";
+    const a = {}; ALLERGENS.forEach(x=>a[x]=norm(g(x)));
+    return {idx:0,name:g("メニュー名"),place:g("提供場所"),price:parseInt(g("価格"),10),
+      kcal:parseInt(g("カロリー"),10),pro:parseFloat(g("タンパク質g")),fat:parseFloat(g("脂質g")),salt:parseFloat(g("塩分g")),a,date:g("確認日"),how:g("確認方法"),note:g("備考")};
+  }).filter(r=>r.name);
+  rows.forEach((r,i)=>r.idx=i);
+  if(!rows.length) throw new Error("メニューが1件も読み込めませんでした");
+  ROWS = rows;
+  buildPlaces(); render();
+}
+function buildPlaces(){
+  const cur=$("place").value;
+  const ps=[...new Set(ROWS.map(r=>r.place).filter(Boolean))];
+  $("place").innerHTML='<option value="">すべて</option>'+ps.map(p=>`<option>${esc(p)}</option>`).join("");
+  if(ps.includes(cur)) $("place").value=cur;
+  $("placeWrap").style.display = ps.length>1 ? "" : "none";
+  $("campus").textContent = ps.length===1 ? ps[0] : "";
+}
+const esc = s => String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const sel = () => ALLERGENS.filter(a=>$("chip-"+a).checked);
+
+function render(){
+  const S = sel(), hideUnk=$("hideUnk").checked, place=$("place").value, q=$("q").value.trim();
+  const key=$("sortKey").value, dir=+$("sortDir").value;
+  const multi = new Set(ROWS.map(r=>r.place).filter(Boolean)).size>1;
+  const NUM = ["price","kcal","pro","fat","salt"];
+  let list = ROWS.filter(r=>{
+    if(place && r.place!==place) return false;
+    if(q && !r.name.includes(q)) return false;
+    if(S.some(a=>r.a[a]==="y")) return false;
+    if(hideUnk && S.some(a=>r.a[a]==="u")) return false;
+    return true;
+  });
+  const rank = n => n.includes("うどん")?0 : n.includes("そば")?1 : (n.includes("ラーメン")||n.includes("麺"))?2 : 3;
+  list.sort((x,y)=>{
+    if(key==="std") return (rank(x.name)-rank(y.name) || x.idx-y.idx)*dir;
+    let a=x[key], b=y[key];
+    if(NUM.includes(key)){
+      const na=isNaN(a), nb=isNaN(b);
+      if(na&&nb) return 0; if(na) return 1; if(nb) return -1;
+      return (a-b)*dir;
+    }
+    return String(a).localeCompare(String(b),"ja")*dir;
+  });
+  const warnOf = r => S.filter(a=>r.a[a]==="u");
+  $("count").textContent = list.length+" 件のメニュー"+(S.length?`（${S.join("・")}を含むものを除外中）`:"");
+  const head = `<thead><tr><th class="l name">メニュー</th>${multi?"<th>場所</th>":""}<th>価格</th><th>kcal</th><th>タンパク質</th><th>脂質</th><th>塩分</th>`+
+    ALLERGENS.map(a=>`<th>${a}</th>`).join("")+`<th class="l">確認</th></tr></thead>`;
+  const cols = ALLERGENS.length+6+(multi?1:0);
+  if(!list.length){ $("tbl").innerHTML=head+`<tbody><tr><td colspan="${cols}" class="empty">条件に合うメニューがありません。条件をゆるめてみてください。</td></tr></tbody>`; return; }
+  const sym={y:"含",n:"–",u:"?"}, ttl={y:"含む",n:"含まない",u:"未確認"};
+  const num=(v,u)=>isNaN(v)?"–":v+u;
+  $("tbl").innerHTML = head+"<tbody>"+list.map(r=>{
+    const w=warnOf(r);
+    const conf=[r.date||"確認日不明", r.how?"（"+esc(r.how)+"）":""].join("");
+    return `<tr class="${w.length?"warn":""}"><td class="l name">${esc(r.name)}${w.length?`<span class="tag">${w.join("・")}が未確認</span>`:""}</td>`+
+      (multi?`<td>${esc(r.place)}</td>`:"")+
+      `<td>${isNaN(r.price)?"–":r.price+"円"}</td><td>${num(r.kcal,"")}</td><td>${num(r.pro,"g")}</td><td>${num(r.fat,"g")}</td><td>${num(r.salt,"g")}</td>`+
+      ALLERGENS.map(a=>`<td><span class="cell ${r.a[a]}${S.includes(a)?" hit":""}" title="${a}: ${ttl[r.a[a]]}" aria-label="${a} ${ttl[r.a[a]]}">${sym[r.a[a]]}</span></td>`).join("")+
+      `<td class="meta">${conf}${r.note?"<br>"+esc(r.note):""}</td></tr>`;
+  }).join("")+"</tbody>";
+}
+
+// chips
+$("chips").innerHTML = ALLERGENS.map(a=>`<label class="chip"><input type="checkbox" id="chip-${a}"><span>${a}</span></label>`).join("");
+ALLERGENS.forEach(a=>$("chip-"+a).addEventListener("change",render));
+["hideUnk","place","sortKey","sortDir"].forEach(id=>$(id).addEventListener("change",render));
+$("q").addEventListener("input",render);
+$("reset").addEventListener("click",()=>{
+  ALLERGENS.forEach(a=>$("chip-"+a).checked=false);
+  $("hideUnk").checked=false; $("place").value=""; $("q").value=""; $("sortKey").value="std"; $("sortDir").value="1"; render();
+});
+
+fetch("menu.csv",{cache:"no-cache"})
+  .then(r=>{ if(!r.ok) throw new Error(r.status); return r.text(); })
+  .then(t=>load(t))
+  .catch(()=>{
+    ROWS=[]; buildPlaces(); render();
+    $("count").textContent="menu.csv を読み込めませんでした。公開URLから開いているか、menu.csv が同じ場所にあるか確認してください。";
+  });
+</script>
+</body>
+</html>
