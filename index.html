@@ -168,7 +168,7 @@ ja:{
  hideUnk:"「未確認」がある料理も非表示にする",
  place:"提供場所", sort:"並べ替え", order:"順序", search:"メニュー名で検索", ph:"例: カレー", reset:"条件をリセット",
  all:"すべて",
- s_std:"標準（麺類が先）", s_name:"メニュー名", s_price:"価格", s_kcal:"カロリー", s_pro:"タンパク質", s_fat:"脂質", s_salt:"塩分", s_date:"確認日",
+ s_std:"標準（ジャンル順）", s_name:"メニュー名", s_price:"価格", s_kcal:"カロリー", s_pro:"タンパク質", s_fat:"脂質", s_salt:"塩分", s_date:"確認日",
  d_asc:"小さい順", d_desc:"大きい順",
  lg_y:"含む", lg_n:"含まない（確認済み）", lg_u:"未確認",
  yes:"含", no:"–", unk:"?",
@@ -193,7 +193,7 @@ en:{
  hideUnk:"Also hide items with unconfirmed allergens",
  place:"Location", sort:"Sort by", order:"Order", search:"Search menu name", ph:"e.g. curry", reset:"Reset filters",
  all:"All",
- s_std:"Default (noodles first)", s_name:"Menu name", s_price:"Price", s_kcal:"Calories", s_pro:"Protein", s_fat:"Fat", s_salt:"Salt", s_date:"Date checked",
+ s_std:"Default (by category)", s_name:"Menu name", s_price:"Price", s_kcal:"Calories", s_pro:"Protein", s_fat:"Fat", s_salt:"Salt", s_date:"Date checked",
  d_asc:"Ascending", d_desc:"Descending",
  lg_y:"Contains", lg_n:"Does not contain (confirmed)", lg_u:"Not confirmed",
  yes:"Yes", no:"No", unk:"?",
@@ -332,7 +332,11 @@ function render(){
     if(hideUnk && S.some(a=>r.a[a]==="u")) return false;
     return true;
   });
-  const rank = n => n.includes("うどん")?0 : n.includes("そば")?1 : (n.includes("ラーメン")||n.includes("麺"))?2 : 3;
+  const rank = n =>
+    n.includes("うどん")?0 : n.includes("そば")?1 : (n.includes("ラーメン")||n.includes("麺"))?2 :
+    (n.includes("スキレット")||n.includes("鉄板"))?3 :
+    (n.includes("唐揚")||n.includes("衣揚")||n.includes("フライ")||n.includes("カツ"))?4 :
+    (n.includes("丼")||n.includes("ごはん")||n.includes("ビビンバ"))?5 : 6;
   const loc = LANG==="en" ? "en" : "ja";
   list.sort((x,y)=>{
     if(key==="std") return (rank(x.name)-rank(y.name) || x.idx-y.idx)*dir;
