@@ -333,7 +333,7 @@ function render(){
     return true;
   });
   const rank = n =>
-    n.includes("めし")?5 : (n.includes("うどん")||n.includes("きしめん"))?0 : n.includes("そば")?1 : (n.includes("ラーメン")||n.includes("麺"))?2 :
+    (n.includes("めし")||n.includes("炒飯"))?5 : (n.includes("うどん")||n.includes("きしめん"))?0 : n.includes("そば")?1 : (n.includes("ラーメン")||n.includes("麺"))?2 :
     (n.includes("スキレット")||n.includes("鉄板"))?3 :
     (n.includes("唐揚")||n.includes("衣揚")||n.includes("フライ")||n.includes("カツ"))?4 :
     (n.includes("丼")||n.includes("ごはん")||n.includes("ビビンバ"))?5 : 6;
