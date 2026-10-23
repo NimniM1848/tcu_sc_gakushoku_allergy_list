@@ -332,13 +332,15 @@ function render(){
     if(hideUnk && S.some(a=>r.a[a]==="u")) return false;
     return true;
   });
-  const rank = n =>
-    (n.includes("めし")||n.includes("炒飯"))?5 :
+  const rank = n => {
+    const f = n.replace(/カツオ|かつお/g,"");
+    return (n.includes("めし")||n.includes("炒飯"))?5 :
     (n.includes("うどん")||n.includes("きしめん"))?0 : n.includes("そば")?1 : (n.includes("ラーメン")||n.includes("麺"))?2 :
     (n.includes("カレー")&&!n.includes("カレー風味"))?6 :
     (n.includes("スキレット")||n.includes("鉄板"))?3 :
-    (n.includes("唐揚")||n.includes("衣揚")||n.includes("フライ")||n.includes("カツ"))?4 :
-    (n.includes("丼")||n.includes("ごはん")||n.includes("ビビンバ"))?5 : 7;
+    (n.includes("丼")||n.includes("ごはん")||n.includes("ビビンバ"))?5 :
+    (f.includes("唐揚")||f.includes("衣揚")||f.includes("フライ")||f.includes("カツ")||f.includes("かつ"))?4 : 7;
+  };
   const loc = LANG==="en" ? "en" : "ja";
   list.sort((x,y)=>{
     if(key==="std") return (rank(x.name)-rank(y.name) || x.idx-y.idx)*dir;
