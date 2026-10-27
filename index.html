@@ -335,7 +335,7 @@ function render(){
   const rank = n => {
     const f = n.replace(/カツオ|かつお/g,"");
     return (n.includes("スキレット")||n.includes("鉄板"))?3 :
-    (n.includes("めし")||n.includes("炒飯")||n.includes("ピラフ"))?5 :
+    (n.includes("めし")||n.includes("炒飯")||n.includes("ピラフ")||n.includes("オムライス"))?5 :
     (n.includes("うどん")||n.includes("きしめん"))?0 : n.includes("そば")?1 : (n.includes("ラーメン")||n.includes("麺"))?2 :
     (n.includes("カレー")&&!n.includes("カレー風味"))?6 :
     (n.includes("丼")||n.includes("ごはん")||n.includes("ビビンバ"))?5 :
