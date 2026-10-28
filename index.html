@@ -339,7 +339,7 @@ function render(){
     (n.includes("うどん")||n.includes("きしめん"))?0 : n.includes("そば")?1 : (n.includes("ラーメン")||n.includes("麺"))?2 :
     (n.includes("カレー")&&!n.includes("カレー風味"))?6 :
     (n.includes("丼")||n.includes("ごはん")||n.includes("ビビンバ"))?5 :
-    (f.includes("唐揚")||f.includes("衣揚")||f.includes("フライ")||f.includes("カツ")||f.includes("かつ"))?4 : 7;
+    (f.includes("揚")||f.includes("フライ")||f.includes("カツ")||f.includes("かつ"))?4 : 7;
   };
   const loc = LANG==="en" ? "en" : "ja";
   list.sort((x,y)=>{
