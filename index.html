@@ -135,6 +135,7 @@ html[lang="en"] .legend .cell{min-width:34px;font-size:11px}
       <label class="f"><span data-i18n="search"></span><input type="search" id="q"></label>
       <button class="ghost" id="reset" type="button" data-i18n="reset"></button>
     </div>
+    <p class="hint" style="margin:10px 0 0" data-i18n="qhint"></p>
   </section>
 
   <div class="legend" id="legend"></div>
@@ -166,7 +167,8 @@ ja:{
  lead:"現地で確認した内容を一覧にしたものです。避けたい食材を選ぶと、それを含むメニューが消えます。",
  avoid_h:"避けたい食材", avoid_hint:"選んだ食材を「含む」メニューを非表示にします。",
  hideUnk:"「未確認」がある料理も非表示にする",
- place:"提供場所", sort:"並べ替え", order:"順序", search:"メニュー名で検索", ph:"例: カレー", reset:"条件をリセット",
+ place:"提供場所", sort:"並べ替え", order:"順序", search:"メニューを検索", ph:"例: からあげ、らーめん 醤油", reset:"条件をリセット",
+ qhint:"ひらがな・カタカナ・英語で探せます。スペースで区切るとすべてを含むメニュー、言葉の前に「-」を付けると、それを含むメニューを除きます。",
  all:"すべて",
  s_std:"標準（ジャンル順）", s_name:"メニュー名", s_price:"価格", s_kcal:"カロリー", s_pro:"タンパク質", s_fat:"脂質", s_salt:"塩分", s_date:"確認日",
  d_asc:"小さい順", d_desc:"大きい順",
@@ -191,7 +193,8 @@ en:{
  lead:"A list of what was checked on site. Select the allergens you want to avoid, and menu items containing them will be hidden.",
  avoid_h:"Allergens to avoid", avoid_hint:"Menu items that contain the selected allergens are hidden.",
  hideUnk:"Also hide items with unconfirmed allergens",
- place:"Location", sort:"Sort by", order:"Order", search:"Search menu name", ph:"e.g. curry", reset:"Reset filters",
+ place:"Location", sort:"Sort by", order:"Order", search:"Search menus", ph:"e.g. karaage, ramen soy", reset:"Reset filters",
+ qhint:"Works with hiragana, katakana and English. Separate words with spaces to match all of them; put \u201c-\u201d before a word to exclude it.",
  all:"All",
  s_std:"Default (by category)", s_name:"Menu name", s_price:"Price", s_kcal:"Calories", s_pro:"Protein", s_fat:"Fat", s_salt:"Salt", s_date:"Date checked",
  d_asc:"Ascending", d_desc:"Descending",
@@ -214,6 +217,72 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const t = k => T[LANG][k];
 const aLabel = a => LANG==="en" ? a.en : a.k;
+
+/* ---------- search ----------
+   表示するメニュー名は一切変えない。検索のときだけ、内部で表記をそろえて比べる。 */
+const GROUP_TXT = [
+  "うどん udon", "そば soba", "ラーメン 麺 らーめん めん ramen noodles", "スキレット 鉄板 てっぱん skillet teppan",
+  "揚げ物 あげもの フライ fried", "丼 どんぶり ごはん ご飯 rice bowl", "カレー curry", "その他 other"
+];
+function groupRank(n){
+  const f = n.replace(/カツオ|かつお/g,"");
+  return (n.includes("スキレット")||n.includes("鉄板"))?3 :
+    (n.includes("めし")||n.includes("炒飯")||n.includes("ピラフ")||n.includes("オムライス"))?5 :
+    (n.includes("うどん")||n.includes("きしめん"))?0 : (n.includes("油そば")||n.includes("まぜそば"))?2 : n.includes("そば")?1 : (n.includes("ラーメン")||n.includes("麺"))?2 :
+    (n.includes("カレー")&&!n.includes("カレー風味"))?6 :
+    (n.includes("丼")||n.includes("ごはん")||n.includes("ビビンバ"))?5 :
+    (f.includes("揚")||f.includes("フライ")||f.includes("カツ")||f.includes("かつ"))?4 : 7;
+}
+/* 全角半角・大文字小文字・カタカナ/ひらがな・記号・スペース・「揚げ」「揚」をそろえる */
+function nrm(s){
+  return String(s||"").normalize("NFKC").toLowerCase()
+    .replace(/[ァ-ヶ]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x60))
+    .replace(/揚げ/g,"揚")
+    .replace(/[\s・･＜＞<>【】\[\]()（）「」『』〈〉《》、。,.:;!?'"’“”~〜_\/\-]/g,"");
+}
+/* 同じ意味の言葉。入力した言葉がこのどれかと一致したら、同じ組の言葉もまとめて探す */
+const SYN_RAW = [
+  ["豚","ぶた","とん","ポーク","pork"], ["鶏","鳥","とり","にわとり","チキン","chicken"], ["牛","ぎゅう","うし","ビーフ","beef"],
+  ["魚","さかな","fish"], ["鯖","さば","mackerel"], ["鮭","さけ","しゃけ","salmon"], ["海老","えび","shrimp","prawn"],
+  ["卵","玉子","たまご","egg"], ["温泉玉子","温玉","おんたま","onsen egg"],
+  ["麺","めん","noodle","noodles"], ["丼","どんぶり","rice bowl"], ["飯","めし","ご飯","ごはん","ライス","rice"],
+  ["唐揚","からあげ","から揚げ","唐揚げ","karaage","fried chicken","フライドチキン"],
+  ["カツ","かつ","cutlet","katsu"], ["ラーメン","らーめん","ramen","中華そば"],
+  ["担々麺","担担麺","タンタンメン","tantanmen","dandan"], ["うどん","udon"], ["そば","蕎麦","soba"], ["きしめん","kishimen"],
+  ["カレー","curry"], ["チャーハン","炒飯","fried rice"], ["麻婆","マーボー","mapo"], ["豆腐","とうふ","tofu"],
+  ["茄子","なす","ナス","なすび","eggplant"], ["味噌","みそ","miso"], ["醤油","しょうゆ","soy"], ["塩","しお","salt"],
+  ["野菜","やさい","vegetable","veggie"], ["春雨","はるさめ","glass noodles"], ["ピラフ","pilaf"], ["オムライス","omurice"],
+  ["ハンバーグ","hamburg"], ["炙り","あぶり","seared"], ["辛","から","スパイシー","ぴり辛","spicy"],
+  ["チーズ","cheese"], ["バター","butter"], ["ジンギスカン","じんぎすかん","genghis khan"], ["サラダ","salad"]
+];
+const SYN = new Map();
+SYN_RAW.forEach(g=>{
+  const terms=[...new Set(g.map(nrm).filter(Boolean))];
+  terms.forEach(tm=>SYN.set(tm,[...new Set([...(SYN.get(tm)||[]),...terms])]));
+});
+/* 入力欄 → {pos:[含む言葉], neg:[除く言葉]}。スペース区切り、先頭の「-」で除外 */
+function parseQuery(raw){
+  const pos=[], neg=[];
+  String(raw||"").normalize("NFKC").split(/\s+/).forEach(tk=>{
+    if(!tk) return;
+    const m = tk.match(/^[-−‐‑–—](.+)$/);
+    const v = nrm(m?m[1]:tk);
+    if(!v) return;
+    (m?neg:pos).push(v);
+  });
+  return {pos,neg};
+}
+const variants = tk => SYN.get(tk) || [tk];
+/* 1メニューぶんの検索用テキスト（名前・英語名・よみ・種類・備考） */
+function buildHay(r){
+  return [r.name, r.nameEn, ...String(r.yomi||"").split("/"), GROUP_TXT[r.grp], r.note, r.noteEn]
+    .map(nrm).filter(Boolean).join("\u0001");
+}
+function matchQuery(r,Q){
+  if(!Q.pos.length && !Q.neg.length) return true;
+  const hit = tk => variants(tk).some(v=>r.hay.includes(v));
+  return Q.pos.every(hit) && !Q.neg.some(hit);
+}
 
 /* ---------- CSV ---------- */
 function parseCSV(text){
@@ -249,12 +318,13 @@ function load(text){
   const rows = tb.slice(1).map((r,i)=>{
     const g = k => idx(k)>=0 ? (r[idx(k)]||"").trim() : "";
     const a = {}; AK.forEach(x=>a[x]=norm(g(x)));
-    return {idx:i,name:g("メニュー名"),nameEn:g("メニュー名(EN)"),place:g("提供場所"),placeEn:g("提供場所(EN)"),
+    return {idx:i,name:g("メニュー名"),nameEn:g("メニュー名(EN)"),yomi:g("よみ"),place:g("提供場所"),placeEn:g("提供場所(EN)"),
       price:parseInt(g("価格"),10),kcal:parseInt(g("カロリー"),10),
       pro:parseFloat(g("タンパク質g")),fat:parseFloat(g("脂質g")),salt:parseFloat(g("塩分g")),a,
       date:g("確認日"),how:g("確認方法"),howEn:g("確認方法(EN)"),note:g("備考"),noteEn:g("備考(EN)")};
   }).filter(r=>r.name);
   if(!rows.length) throw new Error("empty");
+  rows.forEach(r=>{ r.grp=groupRank(r.name); r.hay=buildHay(r); });
   ROWS = rows;
   LAST = null;
   rows.forEach(r=>{
@@ -320,30 +390,21 @@ function buildPlaces(){
 
 /* ---------- render ---------- */
 function render(){
-  const S = AK.filter(a=>SEL.has(a)), hideUnk=$("hideUnk").checked, place=$("place").value, q=$("q").value.trim().toLowerCase();
+  const S = AK.filter(a=>SEL.has(a)), hideUnk=$("hideUnk").checked, place=$("place").value, Q=parseQuery($("q").value);
   const key=$("sortKey").value, dir=+$("sortDir").value;
   const multi = new Set(ROWS.map(r=>r.place).filter(Boolean)).size>1;
   const NUM = ["price","kcal","pro","fat","salt"];
   const lab = a => aLabel(ALLERGENS.find(x=>x.k===a));
   const list = ROWS.filter(r=>{
     if(place && r.place!==place) return false;
-    if(q && !(r.name.toLowerCase().includes(q) || r.nameEn.toLowerCase().includes(q))) return false;
+    if(!matchQuery(r,Q)) return false;
     if(S.some(a=>r.a[a]==="y")) return false;
     if(hideUnk && S.some(a=>r.a[a]==="u")) return false;
     return true;
   });
-  const rank = n => {
-    const f = n.replace(/カツオ|かつお/g,"");
-    return (n.includes("スキレット")||n.includes("鉄板"))?3 :
-    (n.includes("めし")||n.includes("炒飯")||n.includes("ピラフ")||n.includes("オムライス"))?5 :
-    (n.includes("うどん")||n.includes("きしめん"))?0 : (n.includes("油そば")||n.includes("まぜそば"))?2 : n.includes("そば")?1 : (n.includes("ラーメン")||n.includes("麺"))?2 :
-    (n.includes("カレー")&&!n.includes("カレー風味"))?6 :
-    (n.includes("丼")||n.includes("ごはん")||n.includes("ビビンバ"))?5 :
-    (f.includes("揚")||f.includes("フライ")||f.includes("カツ")||f.includes("かつ"))?4 : 7;
-  };
   const loc = LANG==="en" ? "en" : "ja";
   list.sort((x,y)=>{
-    if(key==="std") return (rank(x.name)-rank(y.name) || x.idx-y.idx)*dir;
+    if(key==="std") return (x.grp-y.grp || x.idx-y.idx)*dir;
     if(NUM.includes(key)){
       const a=x[key], b=y[key], na=isNaN(a), nb=isNaN(b);
       if(na&&nb) return 0; if(na) return 1; if(nb) return -1;
