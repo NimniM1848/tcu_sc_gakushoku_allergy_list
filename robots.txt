@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://nimnim1848.github.io/tcu_sc_gakushoku_allergy_list/sitemap.xml
